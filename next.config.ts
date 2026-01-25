@@ -2,7 +2,14 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ["pagedone.io"], // allow this domain for next/image
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "pagedone.io",
+        port: "",
+        pathname: "/**", // allow all paths from this domain
+      },
+    ],
   },
   reactStrictMode: true,
 };
