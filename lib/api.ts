@@ -1,8 +1,9 @@
 // helper to call backend with JWT token
 export async function apiFetch(endpoint: string, options: any = {}) {
   const token = localStorage.getItem("token");
+  const baseUrl = process.env.API_BASE_URL;
 
-  const res = await fetch(`http://localhost:8080/api/v1${endpoint}`, {
+  const res = await fetch(`${baseUrl}${endpoint}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
