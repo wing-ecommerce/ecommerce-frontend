@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { 
   LayoutDashboard, 
   Users,
@@ -9,8 +9,10 @@ import {
   ShoppingCart,
   UserPlus,
   ExternalLink,
-  Box 
+  Box,
+  LogOut
 } from "lucide-react";
+import { useState } from "react";
 
 const customMenu = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -21,8 +23,19 @@ const customMenu = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [loading, setLoading] = useState(false); // added loading state
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/admin");
+
+  const handleSignOut = () => {
+    setLoading(true); // start loading
+    setTimeout(() => {
+      localStorage.removeItem("token"); // clear token
+      router.push("/auth/logout"); // redirect to logout page
+      setLoading(false); // reset loading
+    }, 1000); // 1 second loading
+  };
 
   return (
     <aside className="w-64 bg-white text-gray-800 h-screen flex flex-col border-r border-gray-200 sticky top-0">
@@ -57,18 +70,21 @@ export default function Sidebar() {
             );
           })}
         </nav>
-        
       </div>
 
       {/* Bottom Links */}
       <div className="border-t border-gray-200 p-4 space-y-3">
-        <Link
-          href="/signup"
-          className="flex items-center gap-4 px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition"
+        {/* Sign Out Button */}
+        <button
+          onClick={handleSignOut}
+          disabled={loading} // disable while loading
+          className={`flex items-center gap-4 w-full px-6 py-3 bg-red-600 text-white rounded-lg font-medium hover:bg-red-700 transition ${
+            loading ? "opacity-70 cursor-not-allowed" : ""
+          }`}
         >
-          <UserPlus className="w-5 h-5" />
-          <span>Sign Up</span>
-        </Link>
+          <LogOut className="w-5 h-5" />
+          <span>{loading ? "Logging out..." : "Sign Out"}</span>
+        </button>
 
         <Link
           href="/"

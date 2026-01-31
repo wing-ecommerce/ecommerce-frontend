@@ -1,27 +1,31 @@
+// app/layout.tsx
 "use client";
+
 import "./globals.css";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
 
-  // Hide layout for checkout and all admin routes
-  const hideLayout = pathname === "/checkout" || pathname.startsWith("/admin");
+  // Prevent flicker: wait until mounted
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const hideLayout =
+    pathname.startsWith("/auth") || pathname.startsWith("/admin");
 
   return (
     <html lang="en">
       <body>
-        {!hideLayout && <Navbar />}
-
+        {/* Show children immediately, but hide Navbar/Footer until mounted */}
+        {!hideLayout && mounted && <Navbar />}
         <main className="min-h-screen">{children}</main>
-
-        {!hideLayout && <Footer />}
+        {!hideLayout && mounted && <Footer />}
       </body>
     </html>
   );
