@@ -6,7 +6,7 @@ export default function Footer({ onCategoryClick }: FooterProps) {
   const categories = ["Skirt", "T-Shirt", "Jeans", "Dress"];
 
   return (
-    <footer className="bg-gradient-to-b from-green-50 to-white text-gray-700 mt-24">
+    <footer className="bg-green-50 text-gray-700">
       <div className="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12">
         {/* BRAND */}
         <div>

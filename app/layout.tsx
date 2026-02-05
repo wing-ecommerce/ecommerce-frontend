@@ -4,6 +4,7 @@
 import "./globals.css";
 import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
+import AuthProvider from "@/components/providers/AuthProvider";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -11,21 +12,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
-  // Prevent flicker: wait until mounted
+  // Prevent hydration mismatch: wait until client-side mounted
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const hideLayout =
-    pathname.startsWith("/auth") || pathname.startsWith("/admin");
+  // Hide Navbar/Footer on auth pages only (admin is separate app now)
+  const hideLayout = pathname.startsWith("/auth");
 
   return (
     <html lang="en">
       <body>
-        {/* Show children immediately, but hide Navbar/Footer until mounted */}
-        {!hideLayout && mounted && <Navbar />}
-        <main className="min-h-screen">{children}</main>
-        {!hideLayout && mounted && <Footer />}
+        {/* Wrap entire app with AuthProvider for NextAuth session */}
+        <AuthProvider>
+          {/* Show Navbar/Footer only after mounted to prevent hydration issues */}
+          {!hideLayout && mounted && <Navbar />}
+          
+          {/* Main content always renders */}
+          <main className="min-h-screen">{children}</main>
+          
+          {!hideLayout && mounted && <Footer />}
+        </AuthProvider>
       </body>
     </html>
   );
