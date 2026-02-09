@@ -1,21 +1,6 @@
 import Link from 'next/link';
-import { ShoppingCart } from 'lucide-react';
-
-interface Product {
-  id: number;
-  name: string;
-  slug: string;
-  category: string;
-  price: number;
-  originalPrice: number;
-  discount: number;
-  image: string;
-  description: string;
-  rating: number;
-  inStock: boolean;
-  colors: string[];
-  sizes: string[];
-}
+import { Eye } from 'lucide-react';
+import { Product } from '@/types/product';
 
 interface ProductCardProps {
   product: Product;
@@ -23,31 +8,36 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onAddToCart }: ProductCardProps) {
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (onAddToCart) {
-      onAddToCart(product.slug);
-    }
-  };
+  const inStock = product.inStock ?? (product.stock > 0);
 
   return (
     <Link
       href={`/products/${product.slug}`}
-      className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group"
+      className="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 group block"
     >
       {/* Product Image */}
       <div className="relative overflow-hidden">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-        />
-        {product.discount > 0 && (
+        {product.image ? (
+          <img
+            src={product.image}
+            alt={product.name}
+            className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+        ) : (
+          <div className="w-full h-64 bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-400 text-sm">No image available</span>
+          </div>
+        )}
+        
+        {/* Only show discount badge if discount exists and > 0 */}
+        {product.discount != null && product.discount > 0 && (
           <span className="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold">
             -{product.discount}%
           </span>
         )}
-        {!product.inStock && (
+        
+        {/* Only show out of stock badge if actually out of stock */}
+        {!inStock && (
           <span className="absolute top-4 left-4 bg-gray-800 text-white px-3 py-1 rounded-full text-sm font-bold">
             Out of Stock
           </span>
@@ -56,10 +46,13 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
 
       {/* Product Info */}
       <div className="p-6">
-        <span className="text-xs text-green-600 font-semibold uppercase tracking-wide">
-          {product.category}
-        </span>
-        <h3 className="text-lg font-bold mt-2 mb-4">
+        {product.categoryName && (
+          <span className="text-xs text-green-600 font-semibold uppercase tracking-wide">
+            {product.categoryName}
+          </span>
+        )}
+        
+        <h3 className="text-lg font-bold mt-2 mb-4 line-clamp-2">
           {product.name}
         </h3>
 
@@ -68,26 +61,20 @@ export default function ProductCard({ product, onAddToCart }: ProductCardProps) 
           <span className="text-2xl font-bold text-green-600">
             ${product.price.toFixed(2)}
           </span>
-          {product.originalPrice > product.price && (
+          {product.originalPrice && product.originalPrice > product.price && (
             <span className="text-sm text-gray-400 line-through">
               ${product.originalPrice.toFixed(2)}
             </span>
           )}
         </div>
 
-        {/* Add to Cart Button */}
-        <button
-          disabled={!product.inStock}
-          onClick={handleAddToCart}
-          className={`w-full py-3 rounded-full font-semibold flex items-center justify-center gap-2 transition ${
-            product.inStock
-              ? 'bg-green-500 text-white hover:bg-green-600'
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
+        {/* View Details Button */}
+        <div
+          className="w-full py-3 rounded-full font-semibold flex items-center justify-center gap-2 transition bg-green-500 text-white hover:bg-green-600"
         >
-          <ShoppingCart className="w-5 h-5" />
-          {product.inStock ? 'Add to Cart' : 'Out of Stock'}
-        </button>
+          <Eye className="w-5 h-5" />
+          <span>View Details</span>
+        </div>
       </div>
     </Link>
   );

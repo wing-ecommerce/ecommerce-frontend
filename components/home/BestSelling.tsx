@@ -5,14 +5,33 @@ import { Product } from '@/types/product';
 interface BestSellingProps {
   title?: string;
   products: Product[];
+  loading?: boolean;
   onAddToCart?: (slug: string) => void;
 }
 
 export default function BestSellingSection({ 
   title = "Best Selling Products", 
   products,
+  loading = false,
   onAddToCart 
 }: BestSellingProps) {
+  if (loading) {
+    return (
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+            <p className="mt-4 text-gray-600">Loading products...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (products.length === 0) {
+    return null;
+  }
+
   return (
     <section className="py-16 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6">
