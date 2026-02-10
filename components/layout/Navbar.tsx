@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 import {
   Search,
   ShoppingCart,
@@ -11,54 +11,53 @@ import {
   X,
   LogOut,
   UserCircle,
-} from 'lucide-react';
-import { useSession, signOut } from 'next-auth/react';
-import Image from 'next/image';
-import CartSidebar from '../cart/CartSideBar';
-import SignInModal from '../ui/SignInModal';
+} from "lucide-react";
+import { useSession, signOut } from "next-auth/react";
+import Image from "next/image";
+import CartSidebar from "../cart/CartSideBar";
+import SignInModal from "../ui/SignInModal";
+import { useCart } from "../../contexts/CartContext";
 
 const Navbar = () => {
   const pathname = usePathname();
   const { data: session, status } = useSession();
+  const { cartCount, isCartOpen, openCart, closeCart } = useCart();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSignInOpen, setIsSignInOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showUserMenu, setShowUserMenu] = useState(false);
 
-  const cartCount = 3;
-
   const navLinks = [
-    { href: '/', label: 'Home' },
-    { href: '/products', label: 'Products' },
-    { href: '/about', label: 'About' },
-    { href: '/contact', label: 'Contact' },
+    { href: "/", label: "Home" },
+    { href: "/products", label: "Products" },
+    { href: "/about", label: "About" },
+    { href: "/contact", label: "Contact" },
   ];
 
   const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       e.preventDefault();
-      console.log('Searching:', searchQuery);
+      console.log("Searching:", searchQuery);
     }
   };
 
   const handleSignOut = async () => {
     try {
       await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
       });
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
     }
 
-    await signOut({ callbackUrl: '/' });
+    await signOut({ callbackUrl: "/" });
   };
 
   return (
     <>
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-100">
+      <nav className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 lg:h-20 items-center justify-between">
             {/* Logo */}
@@ -77,8 +76,8 @@ const Navbar = () => {
                   href={link.href}
                   className={`relative font-medium transition ${
                     pathname === link.href
-                      ? 'text-green-600'
-                      : 'text-gray-700 hover:text-green-600'
+                      ? "text-green-600"
+                      : "text-gray-700 hover:text-green-600"
                   }`}
                 >
                   {link.label}
@@ -108,19 +107,20 @@ const Navbar = () => {
             <div className="flex items-center space-x-4">
               {/* Cart */}
               <button
-                onClick={() => setIsCartOpen(true)}
+                onClick={openCart}
                 className="relative p-2 text-gray-700 hover:text-green-600 transition"
+                aria-label="Shopping cart"
               >
                 <ShoppingCart className="w-6 h-6" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-green-600 text-white text-xs font-semibold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-red-500 text-white text-xs font-semibold rounded-full flex items-center justify-center">
                     {cartCount}
                   </span>
                 )}
               </button>
 
               {/* User */}
-              {status === 'loading' ? (
+              {status === "loading" ? (
                 <div className="w-9 h-9 bg-gray-200 rounded-full animate-pulse" />
               ) : session ? (
                 <div className="relative">
@@ -138,7 +138,7 @@ const Navbar = () => {
                       />
                     ) : (
                       <div className="w-9 h-9 bg-green-600 text-white flex items-center justify-center font-semibold rounded-full">
-                        {session.user?.name?.[0]?.toUpperCase() || 'U'}
+                        {session.user?.name?.[0]?.toUpperCase() || "U"}
                       </div>
                     )}
                   </button>
@@ -201,11 +201,48 @@ const Navbar = () => {
               </button>
             </div>
           </div>
+
+          {/* Mobile Menu */}
+          {isMenuOpen && (
+            <div className="lg:hidden border-t border-gray-100 py-4">
+              <div className="flex flex-col space-y-3">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    onClick={() => setIsMenuOpen(false)}
+                    className={`px-4 py-2 rounded-lg transition ${
+                      pathname === link.href
+                        ? "bg-green-50 text-green-600 font-semibold"
+                        : "text-gray-700 hover:bg-gray-50"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+                {!session && (
+                  <button
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setIsSignInOpen(true);
+                    }}
+                    className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition mx-4"
+                  >
+                    <User className="w-5 h-5" />
+                    Sign In
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </nav>
 
-      <CartSidebar isOpen={isCartOpen} onClose={() => setIsCartOpen(false)} />
-      <SignInModal isOpen={isSignInOpen} onClose={() => setIsSignInOpen(false)} />
+      <CartSidebar isOpen={isCartOpen} onClose={closeCart} />
+      <SignInModal
+        isOpen={isSignInOpen}
+        onClose={() => setIsSignInOpen(false)}
+      />
     </>
   );
 };

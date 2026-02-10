@@ -5,12 +5,12 @@ import { X } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { useState } from "react";
 
-type Props = {
+interface SignInModalProps {
   isOpen: boolean;
   onClose: () => void;
-};
+}
 
-export default function SignInModal({ isOpen, onClose }: Props) {
+export default function SignInModal({ isOpen, onClose }: SignInModalProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -22,7 +22,7 @@ export default function SignInModal({ isOpen, onClose }: Props) {
       setError(null);
 
       const result = await signIn("google", {
-        callbackUrl: "/",
+        callbackUrl: window.location.href, // Return to current page instead of home
         redirect: true,
       });
 
@@ -37,7 +37,7 @@ export default function SignInModal({ isOpen, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
       {/* Modal */}
       <div className="relative w-full max-w-md overflow-hidden rounded-3xl bg-white shadow-2xl">
         

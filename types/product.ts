@@ -1,3 +1,12 @@
+export interface ProductSize {
+  id: number;
+  size: string;
+  stock: number;
+  priceOverride?: number;
+  sku?: string;
+  effectivePrice: number; // Either priceOverride or product price
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -8,11 +17,11 @@ export interface Product {
   image?: string;
   additionalPhotos?: string[];
   description?: string;
-  stock: number;
-  sizes?: string[];
+  stock: number; // Total stock across all sizes
+  sizes: ProductSize[]; // Changed from string[] to ProductSize[]
   categoryId: string;
   categoryName: string;
-  inStock?: boolean; // Computed from stock
+  inStock?: boolean; // Computed from total stock
 }
 
 export interface Category {
