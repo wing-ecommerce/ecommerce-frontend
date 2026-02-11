@@ -15,8 +15,8 @@ export default function ProductsSection({
   onAddToCart 
 }: ProductsSectionProps) {
   return (
-    <section className="py-8 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4">
+    <section className="pt-8 pb-0 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 pb-12">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-3xl text-gray-700 font-bold">
             {activeCategory === 'All' ? 'All Products' : `${activeCategory} Collection`}

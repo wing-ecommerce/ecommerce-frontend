@@ -18,8 +18,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     setMounted(true);
   }, []);
 
-  // Hide Navbar/Footer on auth pages only (admin is separate app now)
-  const hideLayout = pathname.startsWith("/auth");
+  // Hide Navbar/Footer on auth pages and checkout page
+  const hideLayout = pathname.startsWith("/auth") || pathname.startsWith("/checkout");
 
   return (
     <html lang="en">
