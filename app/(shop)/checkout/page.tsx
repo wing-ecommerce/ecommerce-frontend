@@ -13,6 +13,7 @@ import OrderSummary from '@/components/checkout/OrderSummary';
 import CashPaymentScreen from '@/components/checkout/CashPaymentScreen';
 import LoadingState from '@/components/checkout/LoadingState';
 import AddAddressModal from '@/components/checkout/AddAddressModal';
+import OrderSuccessModal from '@/components/ui/OrderSuccessModal';
 
 interface Address {
   id: number;
@@ -22,6 +23,29 @@ interface Address {
   address: string;
   city: string;
   isDefault: boolean;
+}
+
+interface OrderData {
+  id: number;
+  orderNumber: string;
+  userId: number;
+  addressId: number;
+  status: string;
+  paymentMethod: string;
+  paymentStatus: string;
+  totalItems: number;
+  subtotal: number;
+  shipping: number;
+  tax: number;
+  total: number;
+  estimatedDelivery?: string;
+  createdAt: string;
+}
+
+interface OrderResponse {
+  success: boolean;
+  message: string;
+  data: OrderData;
 }
 
 const CheckoutPage = () => {
@@ -35,6 +59,8 @@ const CheckoutPage = () => {
   const [showPayment, setShowPayment] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [showAddAddressModal, setShowAddAddressModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [orderDetails, setOrderDetails] = useState<OrderData | null>(null);
 
   // Fetch addresses
   const fetchAddresses = async () => {
@@ -70,12 +96,12 @@ const CheckoutPage = () => {
     }
   }, [isAuthenticated, authLoading, router]);
 
-  // Redirect if cart is empty
+  // Redirect if cart is empty (but NOT when success modal or order details exist)
   useEffect(() => {
-    if (!cartLoading && cartItems.length === 0 && !showPayment) {
+    if (!cartLoading && cartItems.length === 0 && !showPayment && !showSuccessModal && !orderDetails) {
       router.push('/products');
     }
-  }, [cartItems, cartLoading, showPayment, router]);
+  }, [cartItems, cartLoading, showPayment, showSuccessModal, orderDetails, router]);
 
   // Calculate totals
   const subtotal = cart?.subtotal || 0;
@@ -121,25 +147,26 @@ const CheckoutPage = () => {
 
       console.log('Placing order:', orderData);
 
-      // TODO: Uncomment when backend order API is ready
-      // const response = await api.post('/orders', orderData);
-      // console.log('Order placed:', response);
+      // Call order API with proper typing
+      const response = await api.post<OrderResponse>('/orders', orderData);
+      console.log('Order placed:', response);
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Store order details FIRST (prevents redirect)
+      setOrderDetails(response.data);
 
-      // Clear cart after successful order
+      // Clear cart (already done by backend, but refresh UI)
       await clearCart();
 
-      // Show success message
-      alert('Order placed successfully! You will receive a confirmation email shortly.');
-
-      // Redirect to orders page
-      router.push('/account/orders');
+      // Hide payment screen and show success modal
+      setShowPayment(false);
+      setShowSuccessModal(true);
 
     } catch (error: any) {
       console.error('Error placing order:', error);
-      alert(`Failed to place order: ${error.message || 'Please try again'}`);
+      
+      // Extract error message from API response
+      const errorMessage = error.response?.data?.message || error.message || 'Please try again';
+      alert(`Failed to place order: ${errorMessage}`);
     } finally {
       setIsPlacingOrder(false);
     }
@@ -149,6 +176,12 @@ const CheckoutPage = () => {
   const handleAddressAdded = () => {
     // Refresh addresses list
     fetchAddresses();
+  };
+
+  // Handle close success modal - DO NOT clear orderDetails here
+  const handleCloseSuccessModal = () => {
+    setShowSuccessModal(false);
+    // Don't clear orderDetails - let it persist to prevent redirect
   };
 
   // Loading state
@@ -165,6 +198,7 @@ const CheckoutPage = () => {
         itemCount={cart?.totalItems || 0}
         onBack={() => setShowPayment(false)}
         onConfirmOrder={handleConfirmOrder}
+        isLoading={isPlacingOrder}
       />
     );
   }
@@ -218,6 +252,18 @@ const CheckoutPage = () => {
         userEmail={user?.email || undefined}
         userName={user?.name || undefined}
       />
+
+      {/* Order Success Modal */}
+      {orderDetails && (
+        <OrderSuccessModal
+          isOpen={showSuccessModal}
+          onClose={handleCloseSuccessModal}
+          orderNumber={orderDetails.orderNumber}
+          orderTotal={orderDetails.total}
+          estimatedDelivery={orderDetails.estimatedDelivery}
+          itemCount={orderDetails.totalItems}
+        />
+      )}
     </div>
   );
 };

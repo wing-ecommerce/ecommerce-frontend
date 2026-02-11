@@ -1,4 +1,4 @@
-import { ArrowLeft, Banknote, CheckCircle, MapPin, Phone, Mail, Package } from 'lucide-react';
+import { ArrowLeft, Banknote, CheckCircle, MapPin, Phone, Mail, Package, Loader2 } from 'lucide-react';
 
 interface Address {
   id: number;
@@ -16,6 +16,7 @@ interface CashPaymentScreenProps {
   itemCount: number;
   onBack: () => void;
   onConfirmOrder: () => void;
+  isLoading?: boolean;
 }
 
 const CashPaymentScreen = ({ 
@@ -23,7 +24,8 @@ const CashPaymentScreen = ({
   address, 
   itemCount,
   onBack, 
-  onConfirmOrder 
+  onConfirmOrder,
+  isLoading = false
 }: CashPaymentScreenProps) => {
   return (
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
@@ -31,7 +33,8 @@ const CashPaymentScreen = ({
         {/* Back Button */}
         <button
           onClick={onBack}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 transition-colors group"
+          disabled={isLoading}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-8 transition-colors group disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
           <span className="font-medium">Back to Checkout</span>
@@ -136,10 +139,20 @@ const CashPaymentScreen = ({
             {/* Confirm Button */}
             <button
               onClick={onConfirmOrder}
-              className="w-full py-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm"
+              disabled={isLoading}
+              className="w-full py-4 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <CheckCircle className="w-5 h-5" />
-              Confirm Order
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  Processing Order...
+                </>
+              ) : (
+                <>
+                  <CheckCircle className="w-5 h-5" />
+                  Confirm Order
+                </>
+              )}
             </button>
 
             {/* Terms */}
