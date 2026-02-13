@@ -226,8 +226,10 @@ export default function AddressBook() {
   // Loading state
   if (authLoading || isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500"></div>
+      <div className="max-w-5xl mx-auto bg-white rounded-2xl p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
+        </div>
       </div>
     );
   }

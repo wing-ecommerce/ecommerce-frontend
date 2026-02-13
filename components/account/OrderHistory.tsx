@@ -89,15 +89,11 @@ export default function MyOrders() {
   // Loading state
   if (authLoading || isLoading) {
     return (
-      <section className="bg-white">
-        <div className="w-full mx-auto">
-          <div className="main-data p-8 sm:p-14 bg-gray-50 rounded-3xl">
-            <div className="flex justify-center items-center py-20">
-              <Loader2 className="w-12 h-12 animate-spin text-green-600" />
-            </div>
-          </div>
+      <div className="max-w-5xl mx-auto bg-white rounded-2xl p-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500"></div>
         </div>
-      </section>
+      </div>
     );
   }
 
